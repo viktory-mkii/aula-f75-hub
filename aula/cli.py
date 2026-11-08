@@ -54,6 +54,9 @@ def cmd_info(kb: Keyboard, a) -> None:
     print(f"OS mode   : {P.OS_MODES[os_mode] if os_mode < len(P.OS_MODES) else os_mode}")
     print(f"Win lock  : {'on' if led.win_lock else 'off'}")
     print(f"Sleep     : {P.sleep_text(led.sleep)}")
+    level, state = kb.get_battery()
+    print(f"Battery   : {level}% (on battery)" if level is not None
+          else f"Battery   : ? ({state})")
 
 
 def cmd_effects(_kb, a) -> None:

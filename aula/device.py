@@ -197,14 +197,18 @@ class Keyboard:
             raise ValueError("keymap must be 504 bytes")
         self.write(P.CMD_SET_MATRIX, raw, layer)
 
-    def get_battery(self) -> int | None:
-        """Battery percentage (experimental: first byte of the 0x4a reply).
-
-        Read 100 while the keyboard's own Fn+B gauge showed 10/10; needs to be
-        confirmed at a lower charge.
+    def get_battery_status(self) -> tuple[int | None, str]:
+        """Level and charge state from the 0x4A reply (byte 5, byte 6).
+        state 0x01 = on battery, 0x10 = cable in. While charging the level
+        reads 100 regardless of actual charge, so it carries no information.
         """
-        data = self.read(P.CMD_PROFILE)
-        return data[0] if data and data[0] <= 100 else None
+        d = self.read(P.CMD_PROFILE)
+        if len(d) < 2 or not 1 <= d[0] <= 100:
+            return None, "unknown"
+        return d[0], {0x01: "battery", 0x10: "charging"}.get(d[1], "unknown")
+    
+    def get_battery(self) -> int | None:      # unchanged behaviour
+        return self.get_battery_status()[0]
 
     def get_macro_store(self) -> bytes:
         return self.read(P.CMD_SET_MACRO, 0)
