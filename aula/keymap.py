@@ -114,10 +114,16 @@ HID = {
     "backslash": 0x31, "iso_hash": 0x32, "semicolon": 0x33, "quote": 0x34,
     "grave": 0x35, "comma": 0x36, "period": 0x37, "slash": 0x38, "capslock": 0x39,
     **{f"f{i}": 0x3A + i - 1 for i in range(1, 13)},
+    **{f"f{i}": 0x68 + i - 13 for i in range(13, 25)}, # F13-F24
     "printscreen": 0x46, "scrolllock": 0x47, "pause": 0x48, "insert": 0x49,
     "home": 0x4A, "pgup": 0x4B, "delete": 0x4C, "end": 0x4D, "pgdn": 0x4E,
     "right": 0x4F, "left": 0x50, "down": 0x51, "up": 0x52,
     "iso_backslash": 0x64, "menu": 0x65,
+    # numeric keypad (HID 0x53-0x67)
+    "numlock": 0x53, "kp_slash": 0x54, "kp_asterisk": 0x55,
+    "kp_minus": 0x56, "kp_plus": 0x57, "kp_enter": 0x58,
+    **{f"kp{i}": 0x58 + i for i in range(1, 10)},           # 0x59..0x61
+    "kp0": 0x62, "kp_period": 0x63, "kp_equal": 0x67,
 }
 
 # Modifier keys: stored as bits in the second byte of a keymap entry
