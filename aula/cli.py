@@ -90,6 +90,34 @@ def cmd_effect(kb: Keyboard, a) -> None:
     else:
         print(f"Effect: {e.name}")
 
+def _target_entry(target: str) -> bytes:
+    t = target.lower()
+    t = K.ALIASES.get(t, K.TR_ALIASES.get(t, t))
+    if t in K.SPECIAL:
+        return P.special_entry(K.SPECIAL[t])
+    if t in K.CONSUMER:
+        return P.consumer_entry(K.CONSUMER[t])
+    if "+" in t:
+        *mods, key = t.split("+")
+        bits = 0
+        for m in mods:
+            bits |= _mod(m)
+        if key not in K.HID:
+            raise AulaError(f"unknown key in {target!r}: {key!r}")
+        return P.key_entry(hid=K.HID[key], modifiers=bits)
+    if t in K.MODIFIERS:
+        return P.key_entry(modifiers=K.MODIFIERS[t])
+    if t in K.HID:
+        return P.key_entry(hid=K.HID[t])
+    if t in ("none", "off"):
+        return P.key_entry()
+    raise AulaError(f"unknown target: {target!r}")
+
+def _mod(name: str) -> int:
+    t = K.ALIASES.get(name, name)
+    if t not in K.MODIFIERS:
+        raise AulaError(f"unknown modifier: {name!r}")
+    return K.MODIFIERS[t]
 
 def cmd_palette(kb: Keyboard, a) -> None:
     raw = kb.get_palette()
@@ -237,16 +265,7 @@ def cmd_preset(kb: Keyboard, a) -> None:
 
 def cmd_remap(kb: Keyboard, a) -> None:
     idx = K.key_index(a.key)
-    target = a.target.lower()
-    target = K.TR_ALIASES.get(target, target)
-    if target in K.MODIFIERS:
-        entry = P.key_entry(modifiers=K.MODIFIERS[target])
-    elif target in K.HID:
-        entry = P.key_entry(hid=K.HID[target])
-    elif target == "none":
-        entry = P.key_entry()
-    else:
-        raise AulaError(f"unknown target: {a.target!r}")
+    entry = _target_entry(a.target)
     raw = kb.get_matrix(a.layer)
     old = P.matrix_entry(raw, idx)
     kb.set_matrix(P.set_matrix_entry(raw, idx, entry), a.layer)
@@ -254,7 +273,6 @@ def cmd_remap(kb: Keyboard, a) -> None:
     if check != entry:
         raise AulaError(f"verification failed: expected {entry.hex()}, read back {check.hex()}")
     print(f"{a.key} (layer {a.layer}): {old.hex()} -> {entry.hex()}")
-
 
 # ------------------------------------------------------------------ macros
 def _macro_mode(a) -> tuple[int, int]:

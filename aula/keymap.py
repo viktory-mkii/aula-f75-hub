@@ -132,6 +132,21 @@ MODIFIERS = {
     "rctrl": 0x10, "rshift": 0x20, "ralt": 0x40, "rwin": 0x80,
 }
 
+# Consumer page (0x0C) usages, 16-bit — stored as [0x02, 0, hi, lo]
+CONSUMER = {
+    "playpause": 0x00CD, "next": 0x00B5, "prev": 0x00B6, "stop": 0x00B7,
+    "rewind": 0x00B4, "fastforward": 0x00B3,
+    "mute": 0x00E2, "volup": 0x00E9, "voldown": 0x00EA,
+    "brightup": 0x006F, "brightdown": 0x0070,
+    "browserhome": 0x0223, "browserback": 0x0224, "browserforward": 0x0225,
+    "browserrefresh": 0x0227, "browserbookmarks": 0x022A,
+    "media": 0x0183, "mail": 0x018A, "calculator": 0x0192,
+}
+SPECIAL = {"fn": 0x0D}          # type byte; the key becomes an Fn modifier
+# short names used by the CLI and the vendor app
+ALIASES = {"ctrl": "lctrl", "shift": "lshift", "alt": "lalt",
+           "win": "lwin", "super": "lwin", "meta": "lwin", "altgr": "ralt"}
+
 
 def key_index(name: str) -> int:
     """Resolve a key name to its matrix index. Use '#53' for a raw index."""

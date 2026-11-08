@@ -386,3 +386,13 @@ def set_matrix_entry(raw: bytes, index: int, entry: bytes) -> bytes:
 def key_entry(hid: int = 0, modifiers: int = 0) -> bytes:
     """Plain key entry: [0, modifier bits, 0, HID usage]."""
     return bytes([0x00, modifiers & 0xFF, 0x00, hid & 0xFF])
+
+
+def consumer_entry(usage: int) -> bytes:
+    """Consumer page (0x0C) target: [0x02, 0, usage_hi, usage_lo]."""
+    return bytes([0x02, 0x00, (usage >> 8) & 0xFF, usage & 0xFF])
+
+
+def special_entry(kind: int) -> bytes:
+    """Firmware special-function target, e.g. the Fn key: [kind, 0, 0, 0]."""
+    return bytes([kind & 0xFF, 0x00, 0x00, 0x00])
